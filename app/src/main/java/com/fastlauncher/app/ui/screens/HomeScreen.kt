@@ -1,7 +1,7 @@
 package com.fastlauncher.app.ui.screens
 
-import android.graphics.drawable.Drawable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -9,15 +9,18 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,7 +38,6 @@ fun HomeScreen(
 ) {
     var currentTime by remember { mutableStateOf(getFormattedTime()) }
 
-    // Update time every minute
     LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(10000)
@@ -43,10 +45,20 @@ fun HomeScreen(
         }
     }
 
+    // OxygenOS / ColorOS Signature Gradient Background
+    val oxygenGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF1E1B4B), // Deep indigo
+            Color(0xFF0F172A), // Slate dark
+            Color(0xFF090D16)  // Near black
+        )
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .background(oxygenGradient)
+            .padding(20.dp)
     ) {
         Column(
             modifier = Modifier
@@ -55,55 +67,89 @@ fun HomeScreen(
                 .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // ColorOS / OxygenOS Style Clock Widget
-            Text(
-                text = currentTime,
-                fontSize = 56.sp,
-                color = Color.White,
-                style = MaterialTheme.typography.headlineLarge
-            )
-            Text(
-                text = getFormattedDate(),
-                fontSize = 16.sp,
-                color = Color.White.copy(alpha = 0.8f)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ColorOS Search Pill Bar
+            // OnePlus Style Weather & Clock Widget Card
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .clickable { onOpenDrawer() },
-                shape = RoundedCornerShape(28.dp),
-                color = Color.White.copy(alpha = 0.15f)
+                    .height(110.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White.copy(alpha = 0.08f)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 24.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = currentTime,
+                            fontSize = 42.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = getFormattedDate(),
+                            fontSize = 14.sp,
+                            color = Color.White.copy(alpha = 0.7f)
+                        )
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Cloud,
+                            contentDescription = "Weather",
+                            tint = Color.White,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "24°C · Sunny",
+                            fontSize = 13.sp,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // OxygenOS / ColorOS "Global Search" Pill Bar
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clickable { onOpenDrawer() },
+                shape = RoundedCornerShape(28.dp),
+                color = Color.White.copy(alpha = 0.12f)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 18.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
+                        contentDescription = "Global Search",
                         tint = Color.White.copy(alpha = 0.7f)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
                     Text(
-                        text = "Search apps, settings...",
-                        color = Color.White.copy(alpha = 0.6f),
-                        fontSize = 15.sp
+                        text = "Global Search (Apps, Files, Web)...",
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontSize = 14.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Frequently used or main apps grid (Top 12 apps for home screen preview)
+            // Frequently used apps grid (Home Screen Icons)
             val homeApps = apps.take(16)
 
             LazyVerticalGrid(
@@ -126,13 +172,20 @@ fun HomeScreen(
                 }
             }
 
-            // Dock / Drawer trigger handle at bottom
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Bottom Dock / Drawer Trigger Pill
             Button(
                 onClick = onOpenDrawer,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f)),
-                shape = RoundedCornerShape(20.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.15f)),
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier.height(44.dp)
             ) {
-                Text(text = "Swipe Up for All Apps", color = Color.White)
+                Text(
+                    text = "Swipe up for App Drawer & Categories",
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = 13.sp
+                )
             }
         }
     }
@@ -143,12 +196,12 @@ fun AppIconItem(app: AppInfo, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable { onClick() }
-            .padding(8.dp)
+            .padding(4.dp)
     ) {
         val bitmap = remember(app.icon) {
-            app.icon?.toBitmap(width = 120, height = 120)?.asImageBitmap()
+            app.icon?.toBitmap(width = 128, height = 128)?.asImageBitmap()
         }
 
         if (bitmap != null) {
@@ -156,18 +209,18 @@ fun AppIconItem(app: AppInfo, onClick: () -> Unit) {
                 bitmap = bitmap,
                 contentDescription = app.label,
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(18.dp))
             )
         } else {
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { onClick() },
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Color.Blue),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = app.label.take(1), color = Color.White)
+                Text(text = app.label.take(1), color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -185,7 +238,7 @@ fun AppIconItem(app: AppInfo, onClick: () -> Unit) {
 }
 
 private fun getFormattedTime(): String {
-    val sdf = SimpleDateFormat("hh:mm", Locale.getDefault())
+    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
     return sdf.format(Date())
 }
 
