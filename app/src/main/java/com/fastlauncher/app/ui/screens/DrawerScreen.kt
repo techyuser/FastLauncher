@@ -1,6 +1,8 @@
 package com.fastlauncher.app.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -36,10 +38,30 @@ fun DrawerScreen(
     var selectedTab by remember { mutableStateOf(0) } // 0: All, 1: Categories
     var selectedCategoryFilter by remember { mutableStateOf<String?>(null) }
 
+    // OnePlus / ColorOS Parallel Spring Animations for Drawer Entry/Exit
     AnimatedVisibility(
         visible = isOpen,
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+        enter = slideInVertically(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            ),
+            initialOffsetY = { it }
+        ) + scaleIn(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            ),
+            initialScale = 0.92f
+        ) + fadeIn(
+            animationSpec = spring(stiffness = Spring.StiffnessMedium)
+        ),
+        exit = slideOutVertically(
+            animationSpec = spring(stiffness = Spring.StiffnessMedium),
+            targetOffsetY = { it }
+        ) + scaleOut(
+            targetScale = 0.92f
+        ) + fadeOut()
     ) {
         val drawerGradient = Brush.verticalGradient(
             colors = listOf(
@@ -154,7 +176,6 @@ fun DrawerScreen(
                         list = list.filter { it.label.contains(searchQuery, ignoreCase = true) }
                     }
                     if (selectedCategoryFilter != null) {
-                        // Simple heuristic categorization for demo
                         list = list.filter { it.label.contains(selectedCategoryFilter!!, ignoreCase = true) || it.packageName.contains(selectedCategoryFilter!!.lowercase()) }
                     }
                     list
@@ -199,8 +220,6 @@ fun DrawerScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        val alphabet = ('A'..'Z').toList()
-                        // Show subset of alphabet to fit nicely
                         val sampleAlpha = listOf('A', 'C', 'D', 'G', 'M', 'P', 'S', 'W', 'Y', '#')
                         sampleAlpha.forEach { char ->
                             Text(
@@ -210,7 +229,6 @@ fun DrawerScreen(
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
                                     .clickable {
-                                        // Scroll or filter by letter if wanted
                                         if (char == '#') {
                                             onSearchQueryChanged("")
                                         } else {
